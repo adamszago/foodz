@@ -21,7 +21,7 @@ public class RemoverCozinhaMain {
 		Cozinha c1 = new Cozinha();
 		c1.setId(1L);
 		
-		cadCozinha.remover(c1);
+		cadCozinha.remover(c1.getId());
 		
 	}
 

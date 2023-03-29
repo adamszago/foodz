@@ -2,6 +2,7 @@ package com.zago.foodz.infrasctructure.repository;
 
 import java.util.List;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import com.zago.foodz.domain.model.Cozinha;
@@ -24,6 +25,7 @@ public class CozinhaRepositoryImpl implements CozinhaRepository{
 	}
 	
 	@Transactional
+	@Override
 	public Cozinha adicionar(Cozinha cozinha) {
 		return manager.merge(cozinha);
 	}
@@ -33,8 +35,11 @@ public class CozinhaRepositoryImpl implements CozinhaRepository{
 	}
 
 	@Transactional
-	public void remover(Cozinha cozinha) {
-		cozinha = porId(cozinha.getId());
+	public void remover(Long id) {
+		Cozinha cozinha = porId(id);
+		if (cozinha == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
 		manager.remove(cozinha);
 	}
 
