@@ -2,6 +2,7 @@ package com.zago.foodz.infrasctructure.repository;
 
 import java.util.List;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import com.zago.foodz.domain.model.Restaurante;
@@ -33,9 +34,13 @@ public class RestauranteRepositoryImpl implements RestauranteRepository{
 	}
 
 	@Transactional
-	public void remover(Restaurante restaurante) {
-		restaurante = porId(restaurante.getId());
+	public void remover(Long id) {
+		Restaurante restaurante = porId(id);
+		if (restaurante == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
 		manager.remove(restaurante);
 	}
+	
 
 }

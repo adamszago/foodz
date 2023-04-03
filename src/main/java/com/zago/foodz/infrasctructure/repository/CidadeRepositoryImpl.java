@@ -2,6 +2,7 @@ package com.zago.foodz.infrasctructure.repository;
 
 import java.util.List;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import com.zago.foodz.domain.model.Cidade;
@@ -33,8 +34,11 @@ public class CidadeRepositoryImpl implements CidadeRepository{
 	}
 
 	@Transactional
-	public void remover(Cidade cidade) {
-		cidade = porId(cidade.getId());
+	public void remover(Long id) {
+		Cidade cidade = porId(id);
+		if (cidade == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
 		manager.remove(cidade);
 	}
 
