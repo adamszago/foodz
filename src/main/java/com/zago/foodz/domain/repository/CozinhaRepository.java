@@ -2,14 +2,12 @@ package com.zago.foodz.domain.repository;
 
 import java.util.List;
 
+import org.springframework.stereotype.Repository;
+
 import com.zago.foodz.domain.model.Cozinha;
 
-public interface CozinhaRepository {
+@Repository
+public interface CozinhaRepository extends CustomJpaRepository<Cozinha, Long>{
 	
-	List<Cozinha> todas();
-	Cozinha porId(Long id);
-	Cozinha adicionar(Cozinha cozinha);
-	void remover(Long id);
-	
-
+	List<Cozinha> findByNome(String nome);
 }

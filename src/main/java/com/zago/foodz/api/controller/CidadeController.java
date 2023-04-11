@@ -1,6 +1,7 @@
 package com.zago.foodz.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +33,14 @@ public class CidadeController {
 	
 	@GetMapping
 	public List<Cidade> listar(){
-		return cidadeRepository.todasCidades();
+		return cidadeRepository.findAll();
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Cidade> porId(@PathVariable Long id) {
-		Cidade cidade = cidadeRepository.porId(id);
-		if (cidade != null) {
-			return ResponseEntity.ok(cidade);
+		Optional<Cidade> cidade = cidadeRepository.findById(id);
+		if (cidade.isPresent()) {
+			return ResponseEntity.ok(cidade.get());
 		}
 		return ResponseEntity.notFound().build();
 	}
@@ -61,10 +62,10 @@ public class CidadeController {
 	public ResponseEntity<?> atualizar(@PathVariable Long id
 			, @RequestBody Cidade cidade) {
 		try {
-			Cidade cidadeAtual = cidadeRepository.porId(id);
-			if (cidadeAtual != null) {
-				BeanUtils.copyProperties(cidade, cidadeAtual, "id"); //Faz o mesmo que cozinhaAtual.setNome(cozinha.getNome());
-				cidadeService.salvar(cidadeAtual);
+			Optional<Cidade> cidadeAtual = cidadeRepository.findById(id);
+			if (cidadeAtual.isPresent()) {
+				BeanUtils.copyProperties(cidade, cidadeAtual.get(), "id"); //Faz o mesmo que cozinhaAtual.setNome(cozinha.getNome());
+				cidadeService.salvar(cidadeAtual.get());
 				return ResponseEntity.ok(cidadeAtual);
 			}
 		} catch (EntidadeNaoEncontradaException e) {

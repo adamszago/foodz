@@ -1,5 +1,7 @@
 package com.zago.foodz.domain.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -17,12 +19,16 @@ public class CadastroCozinhaService {
 	private CozinhaRepository cozinhaRepository;
 	
 	public Cozinha salvar(Cozinha cozinha) {
-		return cozinhaRepository.adicionar(cozinha);
+		return cozinhaRepository.save(cozinha);
 	}
 	
+	public List<Cozinha> buscarPorNome(String nome) {
+		return cozinhaRepository.findByNome(nome);
+	}
+	 
 	public void remover(Long id) {
 		try {
-			cozinhaRepository.remover(id);
+			cozinhaRepository.deleteById(id);
 		} catch (EmptyResultDataAccessException emptyDataAccess) {
 			throw new EntidadeNaoEncontradaException (
 					String.format("A cozinha de id %d não existe", id)); 

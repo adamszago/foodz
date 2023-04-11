@@ -1,46 +1,98 @@
 package com.zago.foodz.infrasctructure.repository;
 
+import static com.zago.foodz.infrasctructure.repository.spec.RestauranteSpecs.comFreteGratis;
+import static com.zago.foodz.infrasctructure.repository.spec.RestauranteSpecs.comNomeSemelhante;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import com.zago.foodz.domain.model.Restaurante;
 import com.zago.foodz.domain.repository.RestauranteRepository;
+import com.zago.foodz.domain.repository.RestauranteRepositoryQueries;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
-@Component
-public class RestauranteRepositoryImpl implements RestauranteRepository{
+@Repository
+public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
 
 	@PersistenceContext
 	private EntityManager manager;
-	
-	public List<Restaurante> todas(){
-		TypedQuery<Restaurante> query =  manager.createQuery("from Restaurante", Restaurante.class);
+	@Autowired @Lazy
+	private RestauranteRepository restauranteRepository;
+
+	// Consulta com JPQL
+	public List<Restaurante> find(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
+		var jpql = new StringBuilder();
+		jpql.append("from Restaurante where 0 = 0 ");
+
+		var parametros = new HashMap<String, Object>();
+
+		if (StringUtils.hasLength(nome)) {
+			jpql.append("and nome like :nome ");
+			parametros.put("nome", "%" + nome + "%");
+		}
+
+		if (taxaFreteInicial != null) {
+			jpql.append("and taxaFrete >= :taxaInicial ");
+			parametros.put("taxaInicial", taxaFreteInicial);
+		}
+
+		if (taxaFreteFinal != null) {
+			jpql.append("and taxaFrete <= :taxaFinal ");
+			parametros.put("taxaFinal", taxaFreteFinal);
+		}
+
+		TypedQuery<Restaurante> query = manager.createQuery(jpql.toString(), Restaurante.class);
+
+		parametros.forEach((chave, valor) -> query.setParameter(chave, valor));
+
 		return query.getResultList();
 	}
-	
-	@Transactional
-	public Restaurante adicionar(Restaurante restaurante) {
-		return manager.merge(restaurante);
-	}
-	
-	public Restaurante porId(Long id) {
-		return manager.find(Restaurante.class, id);
-	}
 
-	@Transactional
-	public void remover(Long id) {
-		Restaurante restaurante = porId(id);
-		if (restaurante == null) {
-			throw new EmptyResultDataAccessException(1);
+	//Com Criteria
+	public List<Restaurante> findCriteria(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Restaurante> criteria = builder.createQuery(Restaurante.class);
+		
+		Root<Restaurante> root = criteria.from(Restaurante.class); //from Restaurante
+		
+		var predicates = new ArrayList<Predicate>();
+		
+		if (nome != null) {
+			predicates.add(builder.like(root.get("nome"), "%" + nome + "%"));
 		}
-		manager.remove(restaurante);
+		if (taxaFreteInicial != null) {
+			predicates.add(builder
+					.greaterThanOrEqualTo(root.get("taxaFrete"), taxaFreteInicial));
+		}
+		if (taxaFreteFinal != null) {
+			predicates.add(builder
+					.lessThanOrEqualTo(root.get("taxaFrete"), taxaFreteFinal));
+		}
+		
+		criteria.where(predicates.toArray(new Predicate[0]));
+		TypedQuery<Restaurante> query = manager.createQuery(criteria);
+		return query.getResultList();
+	}
+
+	@Override
+	public List<Restaurante> findComFreteGratis(String nome) {
+		return restauranteRepository
+				.findAll(comNomeSemelhante(nome).and(comFreteGratis()));
 	}
 	
-
+	
 }

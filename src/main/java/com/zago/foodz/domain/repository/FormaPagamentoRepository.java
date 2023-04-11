@@ -1,15 +1,11 @@
 package com.zago.foodz.domain.repository;
 
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.zago.foodz.domain.model.FormaPagamento;
 
-public interface FormaPagamentoRepository {
+@Repository
+public interface FormaPagamentoRepository extends JpaRepository<FormaPagamento, Long>{
 	
-	List<FormaPagamento> todasFormasPagamento();
-	FormaPagamento porId(Long id);
-	FormaPagamento adicionar(FormaPagamento formaPagamento);
-	void remover(FormaPagamento formaPagamento);
-	
-
 }
