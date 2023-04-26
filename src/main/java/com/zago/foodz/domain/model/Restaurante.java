@@ -40,12 +40,14 @@ public class Restaurante {
 	@Column(name = "taxa_frete")
 	private BigDecimal taxaFrete;
 	
-	@ManyToOne
+	//@JsonIgnore
+	//@JsonIgnoreProperties //permite ignorar propriedades especificas incluindo a HibernateProxy gerada
+	@ManyToOne//(fetch = FetchType.LAZY)  //final ToOne por default serao sempre Eager Loading
 	@JoinColumn(name = "cozinha_id", nullable = false)
 	private Cozinha cozinha;
 	
 	@JsonIgnore
-	@ManyToMany
+	@ManyToMany  //Final ToMany por default serao sempre Lazy Loading
 	@JoinTable(name="restaurante_forma_pagamento",
 			joinColumns = @JoinColumn(name="restaurante_id"),
 			inverseJoinColumns = @JoinColumn(name="forma_pagamento_id"))
