@@ -9,7 +9,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zago.foodz.api.controller.Endereco;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
